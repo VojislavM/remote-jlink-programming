@@ -4,7 +4,7 @@ In recent events many have found there selfs at home and not being able to go to
 
 For this example I will use the nRF52-DK development board from Nordic Semi. This board has nRF52832 SoC onboard which has Arm® Cortex®-M4 32-bit processor with FPU, 64 MHz, and 512 kB flash/64 kB RAM memory. This will be important later on when we need to figure out the start address for the application firmware. 
 
-## server configuration
+# server configuration
 There are three ways how to do programming with JLink and you can read more about it on [Segger website](https://www.segger.com/products/debug-probes/j-link/tools/j-link-remote-server/). I will demonstrate the "LAN" way, where the device is connected to one computer using the JLink programmator and I am programming that chip over LAN connection. 
 
 <p align="center">
@@ -25,7 +25,8 @@ After the configuration, the server has started and the IP address in my case is
   <img src="pics/jlink_server_2.png">
 </p>
 
-## client configuration
+# client configuration
+## general configuration
 On the client-side main development, the machine is using Ubuntu 18.04 LTS OS. This will allow us to easily create scripts that will help us to achieve firmware download over LAN.
 
 First it is necessary to install [Segger J-Link software package](https://www.segger.com/downloads/jlink/). After that connection with the server need to be established so the firmware can be downloaded. To do that you can call JLink software from the command line with IP address of server machine as a parameter, for example:
@@ -57,6 +58,20 @@ $ JLinkExe ip 192.168.13.229 flash_remote.sh
 ```
 and the programm will be downloaded to the MCU.
 
+## using west (zephyr RTOS) tool
+West is a tool created within the Zephyr RTOS project and among other things, it is used for building and flashing the target MCU. More about the west can be found on the [link](https://docs.zephyrproject.org/latest/guides/west/index.html). Since west does everything for us and calls the required software, jLink in our case, we need to call just one command:
+```bash
+west flash -r jlink --tool-opt="ip xxx.xxx.x.xxx"
+```
+command explanation:
+* `west` - command name
+* `flash` - command parameter to flash the device
+* `-r` - runner, we choose `jlink` instead of `nrfjprog` which is default for nRF dev boards
+* `--tool-opt` - Additional options for JLink Commander, and our additional option is the IP address of the machine with jLink and remote jLink server running.
+
+with this command, you can flash Zephyr projects to the remote devices.
+
+
 ## notes
 * this example was done for a Linux client and in theory it should work on Windows client as well, but it has not been tested. 
 
@@ -67,3 +82,4 @@ and the programm will be downloaded to the MCU.
 4. https://aurabindo.in/nordic-and-open-source-goodness/
 5. https://diyiot.wordpress.com/2015/11/29/ble-application-with-nrf51822-firmware-flashing/
 6. https://www.segger.com/products/debug-probes/j-link/tools/j-link-remote-server/
+7. https://docs.zephyrproject.org/latest/guides/west/index.html
